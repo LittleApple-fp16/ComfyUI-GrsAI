@@ -22,12 +22,18 @@ from .nano_banana_2_nodes import (
     NODE_DISPLAY_NAME_MAPPINGS as BANANA_2_NODE_DISPLAY_NAME_MAPPINGS,
 )
 
+from .minimax_nodes import (
+    NODE_CLASS_MAPPINGS as MINIMAX_NODE_CLASS_MAPPINGS,
+    NODE_DISPLAY_NAME_MAPPINGS as MINIMAX_NODE_DISPLAY_NAME_MAPPINGS,
+)
+
 # 合并两组节点映射，供ComfyUI识别
 NODE_CLASS_MAPPINGS = {
     **GPT_IMAGE_NODE_CLASS_MAPPINGS,
     **BANANA_NODE_CLASS_MAPPINGS,
     **BANANA_PRO_NODE_CLASS_MAPPINGS,
     **BANANA_2_NODE_CLASS_MAPPINGS,
+    **MINIMAX_NODE_CLASS_MAPPINGS,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -35,6 +41,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     **BANANA_NODE_DISPLAY_NAME_MAPPINGS,
     **BANANA_PRO_NODE_DISPLAY_NAME_MAPPINGS,
     **BANANA_2_NODE_DISPLAY_NAME_MAPPINGS,
+    **MINIMAX_NODE_DISPLAY_NAME_MAPPINGS,
 }
 
 # 导出节点映射，供ComfyUI识别
@@ -44,8 +51,8 @@ __all__ = [
 ]
 
 # 版本信息 - 必须与 pyproject.toml 中的版本保持完全一致
-__version__ = "1.1.4"
+__version__ = "1.2.0"
 
 # 插件作者信息
 __author__ = "ComfyUI-Grsai Team"
-__description__ = "Grsai图像生成节点 - 支持GPT Image，Nano Banana 2, Nano Banana Pro"
+__description__ = "Grsai图片与视频生成节点 - GPT Image 2/2.5、Nano Banana、MiniMax H3"

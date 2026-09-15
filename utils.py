@@ -28,13 +28,13 @@ def download_image(url: str, timeout: int = 30) -> Optional[Image.Image]:
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
         }
-        response = requests.get(url, headers=headers, timeout=timeout)
-        response.raise_for_status()
-
-        image = Image.open(io.BytesIO(response.content))
+        with requests.get(url, headers=headers, timeout=timeout) as response:
+            response.raise_for_status()
+            image = Image.open(io.BytesIO(response.content))
+            image.load()
         return image
-    except Exception as e:
-        print(f"图像下载失败，错误: {str(e)}")
+    except Exception:
+        print("图像下载失败")
         return None
 
 
@@ -167,7 +167,7 @@ def pil_to_tensor(
         canvas = Image.new(target_mode, (max_w, max_h), fill_color)
         offset = ((max_w - img.width) // 2, (max_h - img.height) // 2)
         if target_mode == "RGBA":
-            canvas.paste(img, offset, img)
+            canvas.paste(img, offset)
         else:
             canvas.paste(img, offset)
         aligned_images.append(canvas)

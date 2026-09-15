@@ -36,6 +36,8 @@ class GrsaiConfig:
         "safety_tolerance": 2,
         "prompt_upsampling": False,
         "timeout": 300,
+        "generation_timeout": 1800,
+        "poll_interval": 3,
     }
 
     # Flux 节点使用的宽高比选项
@@ -66,24 +68,25 @@ class GrsaiConfig:
         "21:9",
     ]
 
-    # Nano Banana 模型列表
     SUPPORTED_NANO_BANANA_MODELS = [
-        "nano-banana-fast",
-        "nano-banana",
-        "nano-banana-pro",
-        "nano-banana-pro-vt",
-        "nano-banana-pro-cl",
-        "nano-banana-2-cl",
-        "nano-banana-2-cl-4k",
+        "nano-banana", "nano-banana-fast", "nano-banana-2", "nano-banana-2-cl",
+        "nano-banana-2-2k-cl", "nano-banana-2-4k-cl", "nano-banana-pro",
+        "nano-banana-pro-vt", "nano-banana-pro-cl", "nano-banana-pro-vip",
+        "nano-banana-pro-4k-vip",
     ]
-
-    # 支持 imageSize 参数的 Nano Banana 模型
-    NANO_BANANA_MODELS_SUPPORTING_IMAGE_SIZE = [
-        "nano-banana-pro",
-        "nano-banana-pro-vt",
-        "nano-banana-pro-cl",
-        "nano-banana-2",
-        "nano-banana-2-cl",
+    NANO_BANANA_MODELS_SUPPORTING_IMAGE_SIZE = SUPPORTED_NANO_BANANA_MODELS
+    GPT_IMAGE_QUALITIES = {
+        "gpt-image-2": ["auto"],
+        "gpt-image-2-vip": ["medium"],
+        "gpt-image-2.5": ["auto"],
+        "gpt-image-2.5-flare": ["low", "medium", "high"],
+        "gpt-image-2.5-sunburst": ["low", "medium", "high", "xhigh", "max"],
+    }
+    GPT_IMAGE_PIXEL_MODELS = ["gpt-image-2-vip", "gpt-image-2.5-flare", "gpt-image-2.5-sunburst"]
+    GPT_IMAGE_STANDARD_SIZES = [
+        "1024x1024", "1672x941", "941x1672", "1443x1090", "1090x1443",
+        "1536x1024", "1024x1536", "1408x1120", "1120x1408", "1920x832",
+        "832x1920", "896x1792", "1792x896",
     ]
 
     # Nano Banana PRO / PRO-VT 支持的输出尺寸
@@ -97,6 +100,7 @@ class GrsaiConfig:
         初始化配置。API密钥将通过get_api_key()方法动态获取。
         """
         self.config = self.DEFAULT_CONFIG.copy()
+        self.config["api_base_url"] = (os.getenv("GRSAI_BASE_URL") or self.config["api_base_url"]).rstrip("/")
         self.api_key_error_message = self._create_api_key_error_message()
 
     def _create_api_key_error_message(self) -> str:
@@ -148,9 +152,9 @@ class GrsaiConfig:
         """验证宽高比是否支持"""
         return aspect_ratio in self.SUPPORTED_ASPECT_RATIOS
 
-    def validate_nano_banana_aspect_ratio(self, aspect_ratio: str) -> bool:
+    def validate_nano_banana_aspect_ratio(self, aspect_ratio: str, model: str = "") -> bool:
         """验证 Nano Banana 宽高比是否支持"""
-        return aspect_ratio in self.SUPPORTED_NANO_BANANA_AR
+        return aspect_ratio in self.SUPPORTED_NANO_BANANA_AR or (model.startswith("nano-banana-2") and aspect_ratio in ("1:4", "4:1", "1:8", "8:1"))
 
     def validate_nano_banana_image_size(self, image_size: str) -> bool:
         """验证 Nano Banana（PRO/PRO-VT）输出尺寸是否支持"""

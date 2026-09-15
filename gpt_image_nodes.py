@@ -159,10 +159,12 @@ class GrsaiGPTImage_Node:
         final_prompt: str,
         num_images: int,
         model: str,
-        urls: list[str] = [],
+        urls: Optional[List[str]] = None,
         aspect_ratio: str = "auto",
         **kwargs,
     ) -> Tuple[List[Any], List[str], List[str]]:
+        if not 1 <= num_images <= 12:
+            raise GrsaiAPIError("批量数量支持1~12")
         results_pil, result_urls, errors = [], [], []
 
         def generate_single_image():
@@ -175,9 +177,10 @@ class GrsaiGPTImage_Node:
                     "aspect_ratio": aspect_ratio,
                 }
                 api_params.update(kwargs)
-                pil_imgs, img_urls, errs = api_client.gpt_image_generate_image(
-                    **api_params
-                )
+                with api_client:
+                    pil_imgs, img_urls, errs = api_client.gpt_image_generate_image(
+                        **api_params
+                    )
                 return pil_imgs, img_urls, errs
             except Exception as e:
                 return e
@@ -191,15 +194,14 @@ class GrsaiGPTImage_Node:
                 try:
                     result = future.result()
                     if isinstance(result, Exception):
-                        # 简化错误信息，不显示技术细节
-                        errors.append(f"图像生成失败")
+                        errors.append(str(result))
                     else:
                         pil_imgs, img_urls, errs = result
                         results_pil.extend(pil_imgs)
                         result_urls.extend(img_urls)
                         errors.extend(errs)
                 except Exception as exc:
-                    errors.append(f"图像生成异常")
+                    errors.append(format_error_message(exc))
 
         return results_pil, result_urls, errors
 
@@ -214,10 +216,14 @@ class GrsaiGPTImage_Node:
                         "default": "A beautiful girl with long black hair, wearing a white dress, standing in a beautiful garden, looking at the camera.",
                     },
                 ),
-                "apikey": ("STRING", {"default": "请输入您的APIKEY: sk-xxxxxxx"}),
+                "apikey": ("STRING", {"default": ""}),
                 "model": (
                     [
                         "gpt-image-2",
+                        "gpt-image-2-vip",
+                        "gpt-image-2.5",
+                        "gpt-image-2.5-flare",
+                        "gpt-image-2.5-sunburst",
                     ],
                     {"default": "gpt-image-2"},
                 ),
@@ -227,10 +233,14 @@ class GrsaiGPTImage_Node:
                 ),
             },
             "optional": {
+                "reply_type": (["async", "json", "stream"], {"default": "async"}),
                 "aspect_ratio": (
-                    list(ASPECT_RATIO_STD_MAP.keys()),
+                    list(dict.fromkeys([*ASPECT_RATIO_STD_MAP, *ASPECT_RATIO_VIP_MAP, "1:1", "16:9", "9:16", "4:3", "3:4", "3:2", "2:3", "5:4", "4:5", "21:9", "9:21", "2:1", "1:2"])),
                     {"default": "auto"},
                 ),
+                "custom_size": ("STRING", {"default": "", "tooltip": "可选自定义像素尺寸，例如 2048x2048；填写后覆盖 aspect_ratio"}),
+                "quality": (["default", "auto", "low", "medium", "high", "xhigh", "max"], {"default": "default"}),
+                "background": (["default", "transparent"], {"default": "default"}),
                 "image_1": ("IMAGE",),
                 "image_2": ("IMAGE",),
                 "image_3": ("IMAGE",),
@@ -266,9 +276,13 @@ class GrsaiGPTImage_Node:
     def execute(self, **kwargs):
         prompt = kwargs.pop("prompt")
         model = kwargs.pop("model")
-        apikey = kwargs.pop("apikey")
+        apikey = kwargs.pop("apikey", "").strip() or default_config.get_api_key()
+        reply_type = kwargs.pop("reply_type", "async")
         aspect_ratio_label = kwargs.pop("aspect_ratio", None)
-        aspect_ratio = _resolve_aspect_ratio(aspect_ratio_label, ASPECT_RATIO_STD_MAP)
+        aspect_ratio = _resolve_aspect_ratio(aspect_ratio_label, {**ASPECT_RATIO_STD_MAP, **ASPECT_RATIO_VIP_MAP})
+        aspect_ratio = kwargs.pop("custom_size", "").strip() or aspect_ratio
+        quality = kwargs.pop("quality", "default")
+        background = kwargs.pop("background", "default")
         num_images = int(kwargs.pop("num_images", "1"))
 
         # 收集可选输入图像
@@ -314,6 +328,9 @@ class GrsaiGPTImage_Node:
                     model=model,
                     urls=image_data_urls,
                     aspect_ratio=aspect_ratio,
+                    reply_type=reply_type,
+                    quality=quality,
+                    background=background,
                 )
         except Exception as e:
             return self._create_error_result(
@@ -329,11 +346,14 @@ class GrsaiGPTImage_Node:
             detail = f"; {errors}" if errors else ""
             return self._create_error_result(error_msg + detail)
 
-        size_note = f" | aspectRatio: {aspect_ratio}" if aspect_ratio else ""
+        size_note = f" | quality: {quality} | background: {background}"
+        size_note += f" | aspectRatio: {aspect_ratio}" if aspect_ratio else ""
         failed_count = max(0, num_images - len(pil_images))
         fail_note = f" | 失败: {failed_count} 张" if failed_count > 0 else ""
         status = f"GPT Image | 模型: {model}{size_note} | 参考图片: {len(image_data_urls)} 张 | 成功生成: {len(pil_images)} 张{fail_note}"
 
+        if errors:
+            status += " | " + "; ".join(errors)
         return {
             "ui": {"string": [status]},
             "result": (pil_to_tensor(pil_images), status),

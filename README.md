@@ -1,348 +1,107 @@
 # ComfyUI-GrsAI
 
-**强大的多模型图像生成** ComfyUI 自定义节点，使用GrsAI官方API，支持文生图、图生图、多图融合和批量生图。
-支持多种主流模型，价格低至￥0.02/次。
+GrsAI 图片与视频生成节点，支持提示词、参考素材和并发批量生成。
 
-## 🚀 概述
+## 安装与配置
 
-ComfyUI-GrsAI 是一个专业的 ComfyUI 扩展，提供完整的多模型图像生成功能。支持多种主流AI模型，经过深度优化，为用户提供最简洁的配置体验和最强大的功能支持。
+将仓库放入 `ComfyUI/custom_nodes/ComfyUI-GrsAI`，使用 ComfyUI 的 Python 安装依赖：
 
-## 📸 功能演示
-
-### 🎨 文生图模式
-
-使用 **GrsAI - Text to Image** 节点，纯文本生成高质量图像：
-
-![文生图演示](images/text-to-image-demo.png)
-
-*生成效果：基于文字描述创建的老虎眼睛特写，细节丰富，质感逼真*
-
-### 🖼️ 图生图模式
-
-使用 **GrsAI - Image to Image** 节点，基于输入图像进行智能编辑：
-
-![图生图演示](images/single-image-editing-demo.png)
-
-*生成效果：基于提示词"坐在沙发上的角色和达尔马提亚犬"，同时生成4张不同变化的图像*
-
-### 🎭 多图融合模式
-
-使用 **GrsAI - Multi Image Fusion** 节点，融合多个参考图像：
-
-![多图融合演示](images/multi-image-editing-demo.png)
-
-*复杂工作流：使用多个参考图像（人物+小狗）进行智能融合，创造出和谐统一的场景*
-
-### ✨ 核心特性
-
-- 🎨 **四种生成模式** - 文生图、图生图、多图融合、批量生图，满足所有创作需求
-- 🔥 **多模型支持** - 从经济实惠的GPT Image到专业的Flux系列与 Nano Banana（含 nano-banana-pro）
-- ⚡ **批量生成** - 支持批量生图，智能并发提升效率
-- 🛡️ **零技术门槛** - 只需一个API密钥，自动处理所有技术细节
-- 🎯 **专业参数控制** - 完整支持种子、指导强度、推理步数、宽高比等参数
-- 🌟 **优雅的用户界面** - 简洁的状态反馈，清晰的生成进度提示
-
----
-
-## 🍌 Nano Banana 支持
-
-全新支持 Nano Banana 图像生成模型，提供高效的文生图与图生图能力：
-
-- **节点名称**: `🍌 GrsAI Nano Banana - Text/Image`
-- **模型选项**: `nano-banana-fast`、`nano-banana`、`nano-banana-pro`、`nano-banana-pro-vt`
-- **输入方式**:
-  - 仅填写 `prompt` 为文生图
-  - 连接 1–6 张参考图像端口为图生图/多图融合
-- **输出**: `image`（生成图像）与 `status`（状态文本）
-- **可选参数**:
-  - 通过 `使用宽高比` 勾选框决定是否传入 `aspectRatio`
-  - 宽高比列表支持 `auto`、`1:1`、`16:9`、`9:16`、`4:3`、`3:4`、`3:2`、`2:3`、`5:4`、`4:5`、`21:9`
-  - 仅 `nano-banana-pro` / `nano-banana-pro-vt` 支持 `imageSize`（1K/2K/4K，默认 1K），在其他模型上会被忽略
-
-使用步骤（ComfyUI 内）：
-
-1. 搜索并添加节点 `🍌 GrsAI Nano Banana - Text/Image`
-2. 填写提示词 `prompt`，根据需要选择 `model`
-3. 可选：勾选 `使用宽高比` 并选择列表中的宽高比值
-4. 可选：接入 1–6 张参考图像以进行编辑/融合
-5. 运行并查看输出图像与状态信息
-
-### 🔥 项目优势
-
-- **🔑 超简化配置** - 仅需配置GrsAI密钥，无需额外的第三方服务配置
-- **📱 友好的反馈** - 中文界面，emoji状态提示，清晰的成功/失败统计
-- **🚀 高性能** - 智能并发生成，多图同时处理，大幅提升生成速度
-- **🛡️ 稳定可靠** - 完善的错误处理，生成失败会直接提示失败
-- **💰 价格实惠** - 多种模型选择（含 nano-banana-pro / nano-banana-pro-vt），价格低至￥0.02/次
-
----
-
-## 💰 模型价格
-
-我们支持 7 种主流AI图像生成模型，价格透明，按次计费：
-
-| 模型名称 | 价格（人民币） | 价格（美元） | 特点 |
-|---------|---------------|-------------|------|
-| **GPT Image / 1.5** | ￥0.02 | $0.0027 | 上下文理解，综合能力强，支持中文理解 |
-| **Flux Pro 1.1** | ￥0.03 | $0.0041 | 专业级质量 |
-| **Flux Pro 1.1 Ultra** | ￥0.04 | $0.0054 | 超高质量 |
-| **Flux Kontext Pro** | ￥0.035 | $0.0047 | 上下文理解强 |
-| **Flux Kontext Max** | ￥0.07 | $0.0095 | 上下文理解强，支持中文理解 |
-| **Nano Banana Pro / Pro VT** | 参考官网 | - | 支持 `imageSize`（1K/2K/4K） |
-
-*注：价格可能根据官网实时调整，以GrsAI官网为准*
-
----
-
-## 📦 安装方法 (第一次重启安装完成后，关闭ComfyUI，填写 .env 文件中的api-key。再重启一遍 ComfyUI 即可运行)
-
-### 方法一：通过 ComfyUI Manager 安装（推荐）
-
-1. 在 ComfyUI 界面中打开 **ComfyUI Manager**
-2. 点击 **"Install via Git URL"**
-3. 输入：`https://github.com/31702160136/ComfyUI-GrsAI.git`
-4. 第一次重启安装完成后，关闭ComfyUI，填写 .env 文件中的api-key。再重启一遍 ComfyUI 即可运行。
-
-如果安装报错：This action is not allowed with this security level configuration.
-请参考以下教程
-
-#### 步骤 1：定位配置文件
-根据 ComfyUI-Manager 版本，配置文件路径不同，下面是不同版本的文件位置
-
-#### Manager 3.0 版本以上教程
-当你的 ComfyUI Manger 在 3.0 版本以上时，请查找下面位置的文件 ComfyUI/user/default/ComfyUI-Manager/config.ini
-
-#### Manager 3.0 版本以下教程
-如果你的 ComfyUI Manger 在 3.0 版本以下，请查找下面位置的文件 ComfyUI/custom_nodes/ComfyUI-Manager/config.ini
-
-#### 步骤 2：修改安全参数
-用文本编辑器打开 config.ini，找到：
-
-security_level = normal
-
-将其修改为：
-
-security_level = weak
-
-#### 步骤 3：
-
-重启服务
-
-ComfyUI 桌面版： 完全退出 ComfyUI 后重新启动
-
-ComfyUI Portable 版： 关闭后点击 run_nvidia_gpu.bat 重新启动
-
-### 方法二：手动安装
-
-#### 方式A：通过 Git 克隆（推荐）
-
-```bash
-# 进入 ComfyUI 的 custom_nodes 目录
-cd ComfyUI/custom_nodes/
-
-# 克隆项目
-git clone https://github.com/31702160136/ComfyUI-GrsAI.git
-cd ComfyUI-GrsAI
-
-# 安装依赖
-pip install -r requirements.txt
+```sh
+python -m pip install -r requirements.txt
 ```
 
-#### 方式B：下载 ZIP 文件
+重启 ComfyUI。节点的 `apikey` 可以直接填写密钥；留空时读取环境变量或插件目录 `.env`：
 
-1. 访问 [项目页面](https://github.com/31702160136/ComfyUI-GrsAI)
-2. 点击绿色 **"Code"** 按钮 → **"Download ZIP"**
-3. 解压到 `ComfyUI/custom_nodes/` 目录
-4. **重要**: 将解压后的文件夹从 `ComfyUI-GrsAI-main` 重命名为 `ComfyUI-GrsAI`
-
-```bash
-# 安装依赖
-cd ComfyUI/custom_nodes/ComfyUI-GrsAI
-pip install -r requirements.txt
+```dotenv
+GRSAI_API_KEY=your_api_key_here
+GRSAI_BASE_URL=https://grsai.dakka.com.cn
 ```
 
-### 便携版用户特别说明
+默认国内接口为 `https://grsai.dakka.com.cn`，全球接口为 `https://grsaiapi.com`。密钥可在 [GrsAI 控制台](https://grsai.ai/zh/dashboard/api-keys) 获取。价格以平台控制台为准。
 
-便携版用户需要使用ComfyUI自带的Python环境安装依赖：
+## 节点与模型
 
-**Git 克隆方式：**
+| 节点 | 模型 |
+| --- | --- |
+| 🎨 GrsAI GPT Image | `gpt-image-2`、`gpt-image-2-vip`、`gpt-image-2.5`、`gpt-image-2.5-flare`、`gpt-image-2.5-sunburst` |
+| 🍌 GrsAI Nano Banana - Text/Image | `nano-banana`、`nano-banana-fast` |
+| 🍌 GrsAI Nano Banana 2 - Text/Image | `nano-banana-2`、`nano-banana-2-cl`、`nano-banana-2-2k-cl`、`nano-banana-2-4k-cl` |
+| 🍌 GrsAI Nano Banana Pro - Text/Image | `nano-banana-pro`、`nano-banana-pro-vt`、`nano-banana-pro-cl`、`nano-banana-pro-vip`、`nano-banana-pro-4k-vip` |
+| 🎬 GrsAI MiniMax H3 - Text/Image/Audio | `minimax-h3` |
 
-```powershell
-# 在 ComfyUI 根目录执行 例如：PS E:\ComfyUI_windows_portable_nvidia\ComfyUI_windows_portable>
- .\python_embeded\python.exe -m pip install --force-reinstall -r .\ComfyUI\custom_nodes\ComfyUI-GrsAI\requirements.txt
+现有图片节点保持原注册名称、参考图端口和 `IMAGE / STRING` 输出。无参考图时文生图，有参考图时图生图。`num_images` 控制独立生成请求数，支持1–12；并发数量越大，越容易遇到平台限流。
+
+### GPT Image
+
+`aspect_ratio` 包含文档的标准与 VIP 尺寸选项；`custom_size` 非空时覆盖下拉选项。不同模型的尺寸规则不同，非法组合会在请求前报错。
+
+| 模型 | 尺寸 | quality | transparent |
+| --- | --- | --- | --- |
+| gpt-image-2 / gpt-image-2.5 | 比例或文档列出的1K像素值 | auto | 不支持 |
+| gpt-image-2-vip | 1–4K像素值 | medium | 支持 |
+| gpt-image-2.5-flare | 1–4K像素值 | low / medium / high | 支持 |
+| gpt-image-2.5-sunburst | 1–4K像素值 | low / medium / high / xhigh / max | 支持 |
+
+`quality=default`、`background=default` 表示省略该可选参数，由服务端决定默认行为；这两个 `default` 值不会发给 API。`background=transparent` 会保留返回图片的透明通道。
+
+VIP、flare、sunburst 的自定义像素尺寸：最大边不超过3840，两边均为16的倍数，长短边比例不超过3:1，总像素为655360–8294400。`auto` 按文档作为例外选项保留。
+
+### Nano Banana
+
+`image_size` 支持 `1K / 2K / 4K`。新版文档没有为此字段限制模型，所有 Nano Banana 模型均按选择传递。
+
+基础比例：`auto / 1:1 / 16:9 / 9:16 / 4:3 / 3:4 / 3:2 / 2:3 / 5:4 / 4:5 / 21:9`。
+
+Nano Banana 2 系列额外支持 `1:4 / 4:1 / 1:8 / 8:1`。旧工作流中的 `nano-banana-2-cl-4k` 请改选 `nano-banana-2-4k-cl`；Python 客户端兼容旧名称并映射到正确名称。
+
+### MiniMax H3
+
+沿用现有节点的提示词、密钥、模型选择、可选参考素材、并发和状态返回结构。视频输出使用 ComfyUI 原生 `VIDEO` 类型，连接 `Save Video` 即可保存；批量结果会逐个传给下游。需要提供 `comfy_api.input_impl.VideoFromFile` 的 ComfyUI 版本。
+
+- `aspect_ratio`：`portrait / landscape / square`。
+- `resolution`：`480p / 768p / 1080p`。
+- `duration`：1–15秒，1080p最多10秒。
+- `seed`：原样传递所选整数，0也作为0传递。
+- `image_1`–`image_9`：图片输入；总参考图片最多9张。
+- `audio_1`–`audio_3`：ComfyUI `AUDIO` 输入，转换为 WAV base64；总参考音频最多3段。
+- `images`、`audios`：可填写 URL 或 base64 的 JSON 数组，与连接的素材合并计算数量，默认 `[]`。
+- `num_videos`：1–12个独立生成请求。
+
+成功视频立即下载到 `ComfyUI/output/GrsAI`，验证可读取后返回 `VIDEO`。下载重试耗尽时，状态文本保留原链接，避免重新付费生成。
+
+## 请求与容错
+
+图片与视频模型均使用 `POST /v1/api/generate`，参考图片字段为 `images`。客户端原有 Python 参数 `urls` 保留兼容，发送时转换为 `images`。
+
+- `reply_type=async` 为默认值，提交后使用 `GET /v1/api/result?id=...` 查询。
+- 也支持 `json` 和 `stream`，节点最终仍返回完整图片或视频。SSE 事件会解析成最终任务结果。
+- 查询遇到连接异常、429或5xx时有界退避；生成 POST 不自动重试，避免重复生成计费。
+- `failed`、`violation` 为终态，HTTP 400 中的任务错误也会读取。
+- 默认单次请求超时300秒、总生成等待上限1800秒、查询间隔3秒；通过 `GrsaiConfig` 的 `timeout`、`generation_timeout`、`poll_interval` 配置。
+- 下载最多尝试3次；部分成功仍返回成功素材和失败详情。下载请求不带 API 密钥。
+- 生成超时保留任务 ID，可通过 `GrsaiAPI.get_result(task_id)` 查询原任务。
+
+旧 Flux 客户端保留兼容代码；新版文档未列出 Flux 模型，因此未将其迁移到新接口。OpenAI/Gemini 兼容端点是同平台的其他接入格式，不另造对话节点；本插件的生成模型使用文档自有生成接口。
+
+## 验证
+
+使用安装了 ComfyUI 依赖的 Python 运行离线测试，无需 API 密钥：
+
+```sh
+python -X utf8 test_api_contract.py
 ```
 
-**ZIP 下载方式：**
+覆盖模型与参数矩阵、异步轮询、限流、断连、SSE、错误响应、部分下载、节点传参、透明度和视频读写。模拟测试验证本地实现，不能证明平台所有模型的实时可用性。仓库其他旧测试脚本可能调用付费 API。
 
-```powershell
-# ⚠️ 注意：如果是下载ZIP解压，文件夹名称为 ComfyUI-GrsAI-main
-# 请先重命名文件夹，或使用以下命令：
- .\python_embeded\python.exe -m pip install --force-reinstall -r .\ComfyUI\custom_nodes\ComfyUI-GrsAI-main\requirements.txt
+## 文档来源
 
-# 重命名后推荐使用：
- .\python_embeded\python.exe -m pip install --force-reinstall -r .\ComfyUI\custom_nodes\ComfyUI-GrsAI\requirements.txt
-```
+2026-09-15 核对的接口规范：
 
----
+- [Nano Banana](https://qmy27nhsd9.apifox.cn/452392911e0)
+- [GPT Image 2 / 2.5](https://qmy27nhsd9.apifox.cn/452409160e0)
+- [MiniMax H3](https://qmy27nhsd9.apifox.cn/514679297e0)
+- [异步查询](https://qmy27nhsd9.apifox.cn/452409577e0)
 
-## 🔑 API密钥设置
+## 许可证
 
-### 获取 API 密钥
-
-您只需要获取 **一个** API 密钥：
-
-- **GrsAI密钥**: 访问 [GrsAI官网](https://grsai.com) 登录后在控制台获取
-
-### 配置方法
-
-插件已经包含了 `.env` 配置模板文件，您只需要：
-
-1. **打开配置文件**: `ComfyUI/custom_nodes/ComfyUI-GrsAI/.env`
-2. **替换 API 密钥**: 将 `sk-xxxxx` 替换为您的真实密钥
-
-```env
-GRSAI_API_KEY=your_grsai_api_key_here
-```
-
-**配置位置**: `ComfyUI/custom_nodes/ComfyUI-GrsAI/.env`
-
-### 配置完成
-
-保存文件后重启 ComfyUI 即可使用！
-
----
-<!-- 
-## ⚙️ 参数说明
-
-### 核心参数
-
-- **prompt** (文本提示词): 描述您想要生成的图像
-- **model**: 选择生成模型
-  - `gpt-image`: 经济实惠，快速生成，适合批量处理
-  - `flux-pro-1.1`: 专业级质量，平衡性能与价格
-  - `flux-kontext-pro`: 上下文理解强，适合复杂场景
-  - `flux-pro-1.1-ultra`: 超高质量，追求极致效果
-  - `flux-kontext-max`: 顶级模型，最佳生成效果
-- **num_images**: 生成数量 (1/2/4 张)
-- **seed**: 随机种子 (0=随机，其他=固定)
-
-### 高级参数
-
-- **guidance_scale**: 指导强度 (0.0-10.0)
-  - 值越高，越严格遵循提示词
-- **num_inference_steps**: 推理步数 (1-100)
-  - 步数越多，细节越丰富
-- **aspect_ratio**: 宽高比选择
-  - 支持 21:9、16:9、4:3、1:1、3:4、9:16、9:21  
-- **output_format**: 输出格式 (PNG/JPEG)
-- **safety_tolerance**: 安全容忍度 (0-6)
-- **prompt_upsampling**: 提示词增强 (开启/关闭) -->
-
----
-
-## 📋 系统要求
-
-- **Python** >= 3.8
-- **ComfyUI** (最新版本)
-- **依赖包**:
-  - requests
-  - python-dotenv
-  - httpx
-  - httpcore
-
----
-
-## 🐛 故障排除
-
-### 节点相关问题
-
-**节点没有出现？**
-
-- 完全重启 ComfyUI
-- 检查插件安装路径：`ComfyUI/custom_nodes/ComfyUI-GrsAI`
-- 确认依赖安装成功：`pip list | grep httpx`
-
-**节点显示红色错误？**
-
-- 检查 `.env` 文件是否存在
-- 验证 API 密钥格式：`GRSAI_API_KEY=your_key_here`
-- 重启 ComfyUI
-
-### API 相关问题
-
-**生成失败？**
-
-- 检查GrsAI账户余额
-- 查看节点状态信息获取详细错误
-
----
-
-## 🔮 更新日志
-
-### v1.0.8
-
-- 🆕 新增 `gpt-image-1.5` 模型支持，提供更多 GPT Image 生成选项
-- 🔧 GPT Image 节点现已支持模型选择（`sora-image` / `gpt-image-1.5`）
-- 🐛 修复了图生图节点第 6 张参考图无法正确上传的 bug
-
-### v1.0.7
-
-- 🌟 新增 `nano-banana-pro-vt` 模型支持（与 `nano-banana-pro` 相同能力）
-
-### v1.0.5
-
-- 🆕 Nano Banana 节点新增「使用宽高比」开关，未勾选时不会传递 `aspectRatio`
-- 📐 新增 Nano Banana 宽高比列表，覆盖 `auto` 与 10 种常用比例
-- 🧪 更新测试脚本：自动对齐生成分辨率到 32 像素网格，方便与 API 输出比对
-
-### v1.0.3
-
-- 🍌 新增 **Nano Banana** 模型支持：提供文生图、图生图与多图参考工作流
-
-### v1.0.0
-
-- ✨ **全新发布** - 四种生成模式完整支持
-- 🔑 **简化配置** - 仅需一个 API 密钥
-- ⚡ **批量优化** - 智能批处理和并发生成
-- 🌟 **用户体验** - 中文界面，友好反馈
-- 🛡️ **稳定性** - 完善错误处理，失败时直接返回提示
-- 💰 **多模型支持** - 6种模型，价格从￥0.02起
-
----
-
-## 📄 许可证
-
-本项目采用 MIT 许可证 - 详见 [LICENSE](LICENSE) 文件。
-
----
-
-## 🤝 贡献与支持
-
-### 贡献代码
-
-欢迎提交 Issue 和 Pull Request！
-
-1. Fork 本项目
-2. 创建功能分支
-3. 提交代码更改
-4. 发起 Pull Request
-
-### 获取支持
-
-- **项目文档**: GitHub 仓库
-- **问题反馈**: GitHub Issues
-- **GrsAI官网**: [grsai.com](https://grsai.com)
-- **API文档**: [grsai.com](https://grsai.com/dashboard/documents)
-
----
-
-## 🔗 相关链接
-
-- **GrsAI官网**: [grsai.com](https://grsai.com)
-- **ComfyUI**: [github.com/comfyanonymous/ComfyUI](https://github.com/comfyanonymous/ComfyUI)
-- **Flux模型**: [Black Forest Labs](https://bfl.ai/)
-- **GPT模型**: [openai](https://openai.com/)
-
----
-
-**⭐ 如果这个项目对您有帮助，请给我们一个星标！您的支持是我们持续改进的动力！**
+[MIT](LICENSE)

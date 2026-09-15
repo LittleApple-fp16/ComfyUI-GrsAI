@@ -63,11 +63,13 @@ class GrsaiNanoBanana2_Node:
         final_prompt: str,
         num_images: int,
         model: str,
-        urls: list[str] = [],
+        urls: Optional[List[str]] = None,
         aspect_ratio: str = "auto",
         image_size: str = "1K",
         **kwargs,
     ) -> Tuple[List[Any], List[str], List[str]]:
+        if not 1 <= num_images <= 12:
+            raise GrsaiAPIError("批量数量支持1~12")
         results_pil, result_urls, errors = [], [], []
 
         def generate_single_image():
@@ -81,9 +83,10 @@ class GrsaiNanoBanana2_Node:
                     "image_size": image_size,
                 }
                 api_params.update(kwargs)
-                pil_imgs, img_urls, errs = api_client.banana_generate_image(
-                    **api_params
-                )
+                with api_client:
+                    pil_imgs, img_urls, errs = api_client.banana_generate_image(
+                        **api_params
+                    )
                 return pil_imgs, img_urls, errs
             except Exception as e:
                 return e
@@ -97,15 +100,14 @@ class GrsaiNanoBanana2_Node:
                 try:
                     result = future.result()
                     if isinstance(result, Exception):
-                        # 简化错误信息，不显示技术细节
-                        errors.append(f"图像生成失败")
+                        errors.append(str(result))
                     else:
                         pil_imgs, img_urls, errs = result
                         results_pil.extend(pil_imgs)
                         result_urls.extend(img_urls)
                         errors.extend(errs)
                 except Exception as exc:
-                    errors.append(f"图像生成异常")
+                    errors.append(format_error_message(exc))
 
         return results_pil, result_urls, errors
 
@@ -120,12 +122,13 @@ class GrsaiNanoBanana2_Node:
                         "default": "Create a high-quality studio shot of a ripe banana on a matte surface, soft shadows, natural lighting.",
                     },
                 ),
-                "apikey": ("STRING", {"default": "请输入您的APIKEY: sk-xxxxxxx"}),
+                "apikey": ("STRING", {"default": ""}),
                 "model": (
                     [
                         "nano-banana-2",
                         "nano-banana-2-cl",
-                        "nano-banana-2-cl-4k",
+                        "nano-banana-2-2k-cl",
+                        "nano-banana-2-4k-cl",
                     ],
                     {"default": "nano-banana-2"},
                 ),
@@ -135,6 +138,7 @@ class GrsaiNanoBanana2_Node:
                 ),
             },
             "optional": {
+                "reply_type": (["async", "json", "stream"], {"default": "async"}),
                 "aspect_ratio": (
                     [
                         "auto",
@@ -200,7 +204,8 @@ class GrsaiNanoBanana2_Node:
     def execute(self, **kwargs):
         prompt = kwargs.pop("prompt")
         model = kwargs.pop("model")
-        apikey = kwargs.pop("apikey")
+        apikey = kwargs.pop("apikey", "").strip() or default_config.get_api_key()
+        reply_type = kwargs.pop("reply_type", "async")
         aspect_ratio = kwargs.pop("aspect_ratio", None)
         image_size = kwargs.pop("image_size", "1K")
         num_images = int(kwargs.pop("num_images", "1"))
@@ -244,6 +249,7 @@ class GrsaiNanoBanana2_Node:
                     model=model,
                     urls=image_data_uris,
                     aspect_ratio=aspect_ratio,
+                    reply_type=reply_type,
                     image_size=image_size,
                 )
         except Exception as e:
@@ -265,6 +271,8 @@ class GrsaiNanoBanana2_Node:
         fail_note = f" | 失败: {failed_count} 张" if failed_count > 0 else ""
         status = f"Nano Banana | 模型: {model}{size_note} | 参考图片: {len(image_data_uris)} 张 | 成功生成: {len(pil_images)} 张{fail_note}"
 
+        if errors:
+            status += " | " + "; ".join(errors)
         return {
             "ui": {"string": [status]},
             "result": (pil_to_tensor(pil_images), status),
